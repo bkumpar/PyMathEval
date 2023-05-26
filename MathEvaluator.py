@@ -1,9 +1,3 @@
-'''
-Created on 7. lis 2020.
-
-@author: bkumpar
-'''
-
 #-------------------------------------------------------------------------------
 # Name:        Evaluator
 # Purpose:
@@ -15,7 +9,15 @@ Created on 7. lis 2020.
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 
-from math import sqrt, sin
+import math 
+
+'''
+Created on 7. lis 2020.
+
+@author: bkumpar
+'''
+
+from math import  sin
 from Stack import Stack
 
 class Evaluator:
@@ -49,40 +51,40 @@ class Evaluator:
         val2 = self.valueStack.pop()
         res = pow(val2, val1)
         self.valueStack.push(res)
-        return 
+        return
 
     def sqrt(self):
         val1 = self.valueStack.pop()
-        res = sqrt(val1)
+        res = math.sqrt(val1)
         self.valueStack.push(res)
-        return 
+        return
 
     def sin(self):
         val = self.valueStack.pop()
         res = sin(val)
         self.valueStack.push(res)
-        return 
+        return
 
     def max(self):
         val1 = self.valueStack.pop()
         val2 = self.valueStack.pop()
         res = max(val2, val1)
         self.valueStack.push(res)
-        return 
-    
+        return
+
     def pi(self):
-        res = 3.14
+        res = math.pi
         self.valueStack.push(res)
-        return 
-    
+        return
+
     def nop(self):
         return None
-    
+
 
     def __init__(self):
         self.digits = '0123456789.'
         # Operator:(Precedence,Associativity, function )
-        self.operators = {'+': (2, 'left',self.add) 
+        self.operators = {'+': (2, 'left',self.add)
                         , '-': (2, 'left', self.sub)
                         , '*': (3, 'left' ,self.mul)
                         , '/': (3, 'left', self.div)
@@ -95,11 +97,9 @@ class Evaluator:
         self.output=''
         self.valueStack = Stack('values');
         self.operatorStack = Stack('operators');
-    
-        
+
     def processFunction(self, token):
         self.operatorStack.push(token)
- 
 
     def procesLeftParenthesis(self, token):
         self.operatorStack.push(token)
@@ -110,65 +110,71 @@ class Evaluator:
             self.pushToOutput(token)
         if self.operatorStack.peek() == '(':
             self.operatorStack.drop()
-                    
+
     def processNumber(self,number):
         self.valueStack.push(float(number))
-        self.pushToOutput(number)               
-                   
+        self.pushToOutput(number)
+
     def operatorStackIsNotEmpty(self):
         return self.operatorStack.notEmpty()
-                        
+
     def operatorOnStackHasGreaterPrecedence(self, operator):
         operatorOnStack = self.operatorStack.peek();
         operatorOnStackPrecedence = self.operators[operatorOnStack][0]
         operatorPrecedence = self.operators[operator][0]
         return operatorOnStackPrecedence > operatorPrecedence
-    
+
     def operatorOnStackHasEqualPrecedenceAndLeftAssociativity(self, operator):
         operatorOnStack = self.operatorStack.peek();
         operatorOnStackPrecedence = self.operators[operatorOnStack][0]
         operatorPrecedence = self.operators[operator][0]
         operatorAssociativity = self.operators[operator][1]
         return (operatorOnStackPrecedence == operatorPrecedence) and operatorAssociativity == 'left'
-        
+
     def operatorOnStackIsNotLeftParentheses(self):
         operatorOnStack = self.operatorStack.peek();
         return operatorOnStack != '('
-        
-        
+
+
     def processOperator(self, operator):
         while ((self.operatorStackIsNotEmpty())
               and (self.operatorOnStackIsNotLeftParentheses())
               and (( self.operatorOnStackHasGreaterPrecedence(operator))
                    or (self.operatorOnStackHasEqualPrecedenceAndLeftAssociativity( operator))
                    )
-              ):        
+              ):
             op = self.operatorStack.pop()
-            self.pushToOutput(op) 
-        
+            self.pushToOutput(op)
+            self.calc(op)
         self.operatorStack.push(operator)
-        
+
     def finish(self):
         while self.operatorStack.notEmpty():
             op = self.operatorStack.pop()
-            self.pushToOutput(op) 
-            
+            self.pushToOutput(op)
+            self.calc(op)
+
     def pushToOutput(self, value):
         self.output+= '{} '.format(value)
-        print(self.output)
-                        
-                        
-    def parse(self,expression):
+##        print(self.output)
+
+    def calc(self, operator):
+        operatorDefinition = self.operators[operator]
+        function = operatorDefinition[2]
+        function()
+
+    def parse(self, expression):
+        self.valueStack.clear()
         self.output = ''
         number = ''
         token = ''
         for char in expression:
             if char == '=':
                 break
-            
+
             if char in self.digits:
                 number += char
-                
+
                 if token!='':
                     self.processFunction(token)
                     token = ''
@@ -179,8 +185,8 @@ class Evaluator:
                 elif number != '':
                     self.processNumber(number)
                     number = ''
-                
-                pass        
+
+                pass
             elif char == '(':
                 if token!='':
                     self.processFunction(token)
@@ -189,7 +195,7 @@ class Evaluator:
                     number = ''
                 self.procesLeftParenthesis(char)
                 token = ''
-                
+
             elif char == ')':
                 if token!='':
                     self.processFunction(token)
@@ -197,7 +203,7 @@ class Evaluator:
                 elif number != '':
                     self.processNumber(number)
                     number = ''
-               
+
                 self.procesRightParenthesis()
 
             elif char in self.operators.keys():
@@ -211,9 +217,9 @@ class Evaluator:
         if number != '':
             self.processNumber(number)
             number = ''
-            
-        self.finish()              
-                    
+
+        self.finish()
+
     def printMe(self):
         self.valueStack.printMe()
         self.operatorStack.printMe()
@@ -221,12 +227,13 @@ class Evaluator:
 
 
 def main():
-    expressions = [ ('sin(max(2,3)/3*pi())', '2 3 max 3 / pi * sin'), ('sqrt(9)', '9 sqrt'), ('10+12+33', '10 12 + 33 +'),('12/3/2', '12 3 / 2 /'), ('2^3*4^5+6=','2 3 ^ 4 5 ^ * 6 +'),]
+    expressions = [  ('sqrt(9)', '9 sqrt', 3), ('sin(max(2,3)/3*pi())', '2 3 max 3 / pi * sin', 0.8414709848078965), ('10+12+33', '10 12 + 33 +', 55),('12/3/2', '12 3 / 2 /', 2), ('2^3*4^5+6=','2 3 ^ 4 5 ^ * 6 +', 8198),]
     e = Evaluator()
     for expression in expressions:
         e.parse(expression[0])
-        print(expression)
-        print(e.output)
-        
+        print('{},  {} ?= {},   {} ?= {}'.format(expression[0], expression[1], e.output, e.valueStack.peek(), expression[2]))
+        if( e.valueStack.peek()!= expression[2]):
+            print('*** ERROR EVALUATING EXPRESSION: ' + expression[0])
+
 if __name__ == '__main__':
     main()

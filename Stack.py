@@ -1,21 +1,25 @@
-'''
-Created on 13. lis 2020.
+#-------------------------------------------------------------------------------
+# Name:        module1
+# Purpose:
+#
+# Author:      bkumpar
+#
+# Created:     16.11.2020
+# Copyright:   (c) bkumpar 2020
+# Licence:     <your licence>
+#-------------------------------------------------------------------------------
 
-@author: bkumpar
-'''
 
-class Stack(object):
-    '''
-    classdocs
-    '''
+class Stack:
 
+    name = ''
     def __init__(self, name):
-        '''
-        Constructor
-        '''
         self.container = []
         self.name = name
         pass
+
+    def clear(self):
+        self.container = []
 
     def size(self):
         return len(self.container)
@@ -41,25 +45,12 @@ class Stack(object):
         return item
 
     def over(self):
+        item = None
         if len(self.container)>1:
             item =  self.container[-1]
-            self.push(item)
+        return item
 
-    def rot(self):
-        if len(self.container)>2:
-            item1 = self.pop()
-            item2 = self.pop()
-            item3 = self.pop()
-            self.push(item2)
-            self.push(item1)
-            self.push(item3)
-
-    def rot2(self):
-        self.rot()
-        self.rot()
-
-    def swap(self, value):
-        self.container.append(value)
+    def swap(self):
         if len(self.container)>1:
             val1 = self.pop()
             val2 = self.pop()
@@ -70,20 +61,14 @@ class Stack(object):
         return self.size()>0
 
     def printMe(self):
-        print( '{}: ({})'.format(self.name, self.container))
+        i = 1
+        print(self.name)
+        for item in self.container:
+            print(i,": ", item)
+            i += 1
 
-
-def main():        
+def main():
     pass
-    
-    s = Stack('stack')
-    s.push('a')
-    s.push('b')
-    s.push('c')
-    s.printMe()
-    s.rot2()
-    s.printMe()
-    
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     main()
-        
